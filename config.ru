@@ -6,6 +6,11 @@ Logger.class_eval { alias :write :"<<" } unless Logger.instance_methods.include?
 LOGGER = Logger.new("log/#{ENV["RACK_ENV"] || 'development'}.log")
 use Rack::CommonLogger, LOGGER
 
+BLOCKED_REGEXP = IO.read("config/blocked_words.regexp").
+  split(/\s*[\r\n]+\s*/).
+  reject {|s| s == "" }.
+  collect {|s| Regexp.new(s, Regexp::IGNORECASE | Regexp::MULTILINE)} rescue BLOCKED_REGEXP = []
+
 require "lib/handle_xml"
 use Rack::HandleXml
 
@@ -44,6 +49,7 @@ app = proc do |env|
     case env['REQUEST_METHOD']
     when 'POST'
       request_body = env["rack.input"].read
+      env["rack.input"].rewind
       LOGGER.debug "\n\nPOST #{env['REQUEST_URI']}\n#{request_headers.inspect}\n\n#{request_body}"
       http.request_post(env['REQUEST_URI'], request_body, request_headers)
     when 'GET'

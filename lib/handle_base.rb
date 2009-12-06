@@ -3,9 +3,10 @@ module Rack
     def initialize app
       @app = app
     end
+
     def call(env)
-      response = self.handle_request(env)    || @app.call(env)
-      return self.handle_response(*response) || response
+      status, headers, body = self.handle_request(env) || @app.call(env)
+      return self.handle_response(status, headers, body) || [status, headers, body]
     end
 
     # subclass overwrite
@@ -13,7 +14,6 @@ module Rack
       nil # otherwise, return [status, headers, body]
     end
     def handle_response(status, headers, body)
-      LOGGER.debug "No reaction to Content-Type = #{headers['Content-Type'].inspect}"
       nil # otherwise, return [status, headers, body]
     end
   end
