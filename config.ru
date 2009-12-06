@@ -2,6 +2,7 @@ require 'zlib'
 require 'stringio'
 require 'net/http'
 require 'logger'
+Logger.class_eval { alias :write :"<<" } unless Logger.instance_methods.include? "write"
 LOGGER = Logger.new("log/#{ENV["RACK_ENV"] || 'development'}.log")
 use Rack::CommonLogger, LOGGER
 
