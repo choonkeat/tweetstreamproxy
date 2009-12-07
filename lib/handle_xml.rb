@@ -61,10 +61,13 @@ module Rack
     def get_title_from(html)
       doc = Hpricot(html)
       title = ''
-      (doc/"meta[@property='media:title']").each {|ele| title ||= ele.get_attribute("content").to_s.strip } if title == ''
-      (doc/"title:first").each {|ele| title = ele.inner_text.to_s.strip } if title == ''
-      (doc/"h1:first").each {|ele| title = ele.inner_text.to_s.strip } if title == ''
-      title
+      (doc/"meta[@property='media:title']").each {|ele| title ||= (ele && ele.get_attribute("content").to_s.strip) } if title == ''
+      (doc/"title:first").each {|ele| title = (ele && ele.inner_text.to_s.strip) } if title == ''
+      (doc/"h1:first").each {|ele| title = (ele && ele.inner_text.to_s.strip) } if title == ''
+      title.to_s
+    rescue
+      LOGGER.error $!
+      ''
     end
     def expand_url(found_url)
       res = self.quick_get(found_url)
