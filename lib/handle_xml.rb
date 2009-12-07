@@ -2,6 +2,7 @@ require "lib/handle_base"
 require "addressable/uri"
 require 'stringio'
 require 'hpricot'
+require 'hpricot/xchar' # Hpricot.xs
 require 'zlib'
 
 module Rack
@@ -18,17 +19,19 @@ module Rack
       plain_content = is_gzipped ? Zlib::GzipReader.new(StringIO.new(body)).read : body
       doc = Hpricot(plain_content)
       (doc/"status").each do |ele|
-        inner_html = (ele/"text").inner_html
-        if BLOCKED_REGEXP.find {|r| r.match(inner_html) }
-          ele.set_attribute("deleted", "1")
-          LOGGER.debug "DELETED #{inner_html.inspect}"
-        elsif inner_html =~ /\b(([\w-]+:\/\/?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|\/)))/mi
-          # http://daringfireball.net/2009/11/liberal_regex_for_matching_urls
-          found_url = $1
-          long_url = self.expand_url(found_url)
-          inner_html.gsub!(Regexp.new(Regexp.escape(found_url)), long_url)
-          (ele/"text").inner_html = inner_html
-          LOGGER.debug "tweet becomes #{inner_html}"
+        (ele/"text").each do |textele|
+          inner_html = textele.inner_html
+          if BLOCKED_REGEXP.find {|r| r.match(inner_html) }
+            ele.set_attribute("deleted", "1")
+            LOGGER.debug "DELETED #{inner_html.inspect}"
+          elsif inner_html =~ /\b(([\w-]+:\/\/?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|\/)))/mi
+            # http://daringfireball.net/2009/11/liberal_regex_for_matching_urls
+            found_url = $1
+            long_url = self.expand_url(found_url)
+            LOGGER.debug "tweet was    : #{textele.inner_html}"
+            textele.inner_html = inner_html.gsub(Regexp.new(Regexp.escape(found_url)), Hpricot.xs(long_url))
+            LOGGER.debug "tweet becomes: #{textele.inner_html}"
+          end
         end
       end
       (doc/"status[@deleted='1']").remove
