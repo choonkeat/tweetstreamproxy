@@ -27,9 +27,9 @@ module Rack
           elsif inner_html =~ /\b(([\w-]+:\/\/?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|\/)))/mi
             # http://daringfireball.net/2009/11/liberal_regex_for_matching_urls
             found_url = $1
-            long_url = self.expand_url(found_url)
+            long_url = self.expand_url(found_url).gsub(/[\s\r\n]+/m, ' ').strip
             LOGGER.debug "tweet was    : #{textele.inner_html}"
-            textele.inner_html = inner_html.gsub(Regexp.new(Regexp.escape(found_url)), Hpricot.xs(long_url))
+            textele.inner_html = inner_html.gsub(found_url, Hpricot.xs(long_url))
             LOGGER.debug "tweet becomes: #{textele.inner_html}"
           end
         end
@@ -44,38 +44,40 @@ module Rack
       end
       headers['Content-Length'] = [body.length.to_s]
       return [status, headers, body]
-    rescue
+    rescue Exception
       LOGGER.error $!
       return [status, headers, body]
     end
 
-    def quick_get(uri)
-      LOGGER.debug "fetching #{uri.to_s} ..."
+    def quick_get(url)
+      LOGGER.debug "fetching #{url} ..."
+      uri = Addressable::URI.parse(url.match(/^\w+\:\/\//) ? url : "http://#{url}")
       Net::HTTP.start(uri.host, uri.port) do |http|
-        http.read_timeout = 10
-        http.get([(uri.path == '' ? '/' : uri.path), uri.query].compact.join('?'), "User-Agent" => @user_agent)
+        SystemTimer.timeout(10) do
+          http.get([(uri.path == '' ? '/' : uri.path), uri.query].compact.join('?'), "User-Agent" => @user_agent)
+        end
       end
     end
     def get_title_from(html)
       doc = Hpricot(html)
-      title = nil
-      (doc/"meta[@property='media:title']").each {|ele| title ||= ele.get_attribute("content").to_s }
-      (doc/"title").each {|ele| title ||= ele.inner_text }
-      (doc/"h1").each {|ele| title ||= ele.inner_text }
-      title.to_s.strip
+      title = ''
+      (doc/"meta[@property='media:title']").each {|ele| title ||= ele.get_attribute("content").to_s.strip } if title == ''
+      (doc/"title:first").each {|ele| title = ele.inner_text.to_s.strip } if title == ''
+      (doc/"h1:first").each {|ele| title = ele.inner_text.to_s.strip } if title == ''
+      title
     end
     def expand_url(found_url)
-      res = self.quick_get(Addressable::URI.parse(found_url))
+      res = self.quick_get(found_url)
       long_url = res['location'] || found_url
       counter = 0
-      while res['location'].to_s.strip != "" && counter < 5
+      while res['location'].to_s.strip != "" && counter < 3
         long_url = res['location']
-        res = self.quick_get(Addressable::URI.parse(long_url))
+        res = self.quick_get(long_url)
         counter+=1
       end
       title = self.get_title_from(res.body)
       (title == '') ? long_url : "#{long_url} [#{title}]"
-    rescue
+    rescue Exception
       LOGGER.error $!
       found_url
     end
