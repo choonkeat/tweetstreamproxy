@@ -52,8 +52,8 @@ module Rack
     def quick_get(url)
       LOGGER.debug "fetching #{url} ..."
       uri = Addressable::URI.parse(url.match(/^\w+\:\/\//) ? url : "http://#{url}")
-      Net::HTTP.start(uri.host, uri.port) do |http|
-        SystemTimer.timeout(10) do
+      SystemTimer.timeout(10) do
+        Net::HTTP.start(uri.host, uri.port) do |http|
           http.get([(uri.path == '' ? '/' : uri.path), uri.query].compact.join('?'), "User-Agent" => @user_agent)
         end
       end
@@ -78,11 +78,11 @@ module Rack
         res = self.quick_get(long_url)
         counter+=1
       end
-      title = self.get_title_from(res.body)
-      (title == '') ? long_url : "#{long_url} [#{title}]"
     rescue Exception
       LOGGER.error $!
-      found_url
+    ensure
+      title = self.get_title_from(res.body) if res && res.body
+      return (title == '') ? long_url : "#{long_url} [#{title}]"
     end
   end
 end
