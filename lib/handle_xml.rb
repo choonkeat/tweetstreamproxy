@@ -71,10 +71,10 @@ module Rack
     end
     def expand_url(found_url)
       res = self.quick_get(found_url)
-      long_url = res['location'] || found_url
+      long_url = Addressable::URI.join(found_url, res['location'] || found_url).to_s
       counter = 0
       while res['location'].to_s.strip != "" && counter < 3
-        long_url = res['location']
+        long_url = Addressable::URI.join(long_url, res['location']).to_s
         res = self.quick_get(long_url)
         counter+=1
       end
