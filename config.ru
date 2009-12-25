@@ -12,6 +12,7 @@ BLOCKED_REGEXP = IO.read("config/blocked_words.regexp").
   reject {|s| s == "" }.
   collect {|s| Regexp.new(s, Regexp::IGNORECASE | Regexp::MULTILINE)} rescue BLOCKED_REGEXP = []
 
+require 'lib/models'
 require "lib/handle_xml"
 use Rack::HandleXml
 

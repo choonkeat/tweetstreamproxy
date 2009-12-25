@@ -1,0 +1,13 @@
+development:
+  :adapter:  "mysql"
+  :host:     "localhost"
+  :user:     "root"
+  :password: ""
+  :database: "tweetstreamproxy_development"
+
+production:
+  :adapter:  "mysql"
+  :host:     "localhost"
+  :user:     "root"
+  :password: ""
+  :database: "tweetstreamproxy_production"
