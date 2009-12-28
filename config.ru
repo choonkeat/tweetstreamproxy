@@ -15,6 +15,8 @@ BLOCKED_REGEXP = IO.read("config/blocked_words.regexp").
 require 'lib/models'
 require "lib/handle_xml"
 use Rack::HandleXml
+require "lib/handle_json"
+use Rack::HandleJson
 
 TWITTER = URI.parse('http://twitter.com/')
 
