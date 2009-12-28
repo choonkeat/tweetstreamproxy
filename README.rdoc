@@ -17,13 +17,13 @@
 
 Tweetstreamproxy sits between your Twitter client and Twitter.com to modify your tweets:
 
-1. Expands urls in `Yo all, do you think it will be a good idea if I redo covers for books I read as an ongoing project? (like this http://is.gd/5BMqV ) #fb` to become `Yo all, do you think it will be a good idea if I redo covers for books I read as an ongoing project? (like this http://nimbupani.com/tribute-covers-for-hitchhickers-guide-to-galaxy.html [Tribute Covers for Hitchhickers Guide to Galaxy | Nimbupani Designs] ) #fb`
-2. Removes noisy `i just ... @foursquare` messages from timeline
+1. Expands urls in <tt>Yo all, do you think it will be a good idea if I redo covers for books I read as an ongoing project? (like this http://is.gd/5BMqV ) #fb</tt> to become <tt>Yo all, do you think it will be a good idea if I redo covers for books I read as an ongoing project? (like this http://nimbupani.com/tribute-covers-for-hitchhickers-guide-to-galaxy.html [Tribute Covers for Hitchhickers Guide to Galaxy | Nimbupani Designs] ) #fb</tt>
+2. Removes noisy <tt>i just ... @foursquare</tt> messages from timeline
 
 == Getting started
 
-1. Edit `config/blocked_words.regexp.example` accordingly, and save as `config/blocked_words.regexp`
-2. Edit `config/database.example.yml` accordingly and save as `config/database.yml`
+1. Edit <tt>config/blocked_words.regexp.example</tt> accordingly, and save as <tt>config/blocked_words.regexp</tt>
+2. Edit <tt>config/database.example.yml</tt> accordingly and save as <tt>config/database.yml</tt>
 
 == Compatible Clients
 
