@@ -1,0 +1,38 @@
+= A Proxy for Your Twitter Stream
+
+  "rather than having the scripting support built into a Twitter
+   client, why not just ask Twitter client authors to allow their
+   clients to be pointed at alternate hosts that implement the
+   Twitter APIs besides Twitter’s own servers"
+
+  "This would allow us to implement Twitter “proxies”, so that even
+   the most basic of Twitter clients could take advantage of all
+   sorts of extra features and functionality that might get wrapped
+   around those APIs"
+
+  - Twitter with a Brain — Shotton.com
+    http://r5.sharedcopy.com/5gbjl
+
+== What it does currently
+
+Tweetstreamproxy sits between your Twitter client and Twitter.com to modify your tweets:
+
+1. Expands urls in `Yo all, do you think it will be a good idea if I redo covers for books I read as an ongoing project? (like this http://is.gd/5BMqV ) #fb` to become `Yo all, do you think it will be a good idea if I redo covers for books I read as an ongoing project? (like this http://nimbupani.com/tribute-covers-for-hitchhickers-guide-to-galaxy.html [Tribute Covers for Hitchhickers Guide to Galaxy | Nimbupani Designs] ) #fb`
+2. Removes noisy `i just ... @foursquare` messages from timeline
+
+== Getting started
+
+1. Edit `config/blocked_words.regexp.example` accordingly, and save as `config/blocked_words.regexp`
+2. Edit `config/database.example.yml` accordingly and save as `config/database.yml`
+
+== Compatible Clients
+
+Tweetie (refer http://en.blog.wordpress.com/2009/12/12/twitter-api/) & TwitBird
+
+== Dependencies
+
+rack, system_timer, addressable, json, hpricot, friendly
+
+== License
+
+Copyright (c) 2009 Chew Choon Keat, released under the MIT license
